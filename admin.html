@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Bewertungen</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #f3ede6;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #4a3b2c;
+    }
+
+    .page {
+      padding: 40px 20px 80px;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .box {
+      background: #fff;
+      border-radius: 22px;
+      padding: 28px 22px;
+      box-shadow: 0 12px 28px rgba(74, 59, 44, 0.08);
+      margin-bottom: 24px;
+    }
+
+    .title {
+      margin: 0 0 8px;
+      font-size: 30px;
+      text-align: center;
+    }
+
+    .text {
+      text-align: center;
+      color: #6d6257;
+      margin: 0 0 24px;
+      line-height: 1.6;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #ddd4c8;
+      font-size: 15px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      background: #b88f45;
+      color: #fff;
+      padding: 13px 22px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #a67d37;
+    }
+
+    .btn.secondary {
+      background: #8a7a6a;
+    }
+
+    .btn.secondary:hover {
+      background: #736557;
+    }
+
+    .btn.reject {
+      background: #b55b5b;
+    }
+
+    .btn.reject:hover {
+      background: #994848;
+    }
+
+    .btn.delete {
+      background: #7a1f1f;
+    }
+
+    .btn.delete:hover {
+      background: #5f1717;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      margin: 0 0 4px;
+      font-size: 26px;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: #6d6257;
+      line-height: 1.6;
+    }
+
+    .list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: #fcfbf9;
+      border: 1px solid #e8ddd0;
+      border-radius: 20px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card-image img,
+    .noimage {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      border-radius: 16px;
+      display: block;
+      background: #f2ece4;
+    }
+
+    .noimage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8a7a6a;
+      font-size: 14px;
+      text-align: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .card-meta {
+      color: #6d6257;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 22px;
+      margin: 0 0 10px;
+      color: #4a3b2c;
+    }
+
+    .card-review {
+      color: #5b4f42;
+      line-height: 1.7;
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+
+    .stars {
+      color: #b88f45;
+      font-weight: 700;
+      margin-bottom: 14px;
+      font-size: 16px;
+    }
+
+    .status {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border-radius: 12px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .status.success {
+      display: block;
+      background: #eef7ef;
+      color: #275a2f;
+      border: 1px solid #cfe4d1;
+    }
+
+    .status.error {
+      display: block;
+      background: #fff2f2;
+      color: #8a2f2f;
+      border: 1px solid #e8c9c9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      border: 1px solid #ddd4c8;
+      background: #faf7f2;
+      color: #5b4f42;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: #b88f45;
+      color: #fff;
+      border-color: #b88f45;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <div class="wrap">
+
+      <div id="loginBox" class="box">
+        <h1 class="title">Admin Bewertungen</h1>
+        <p class="text">
+          Melde dich an, um Bewertungen freizugeben, abzulehnen oder endgültig zu löschen.
+        </p>
+
+        <div class="field">
+          <label for="email">E-Mail-Adresse</label>
+          <input id="email" type="email" placeholder="deine@email.at">
+        </div>
+
+        <div class="field">
+          <label for="password">Passwort</label>
+          <input id="password" type="password" placeholder="Passwort">
+        </div>
+
+        <button id="loginBtn" class="btn" type="button">Einloggen</button>
+        <div id="loginStatus" class="status"></div>
+      </div>
+
+      <div id="panelBox" class="hidden">
+        <div class="box">
+          <div class="topbar">
+            <div>
+              <h1 class="title" style="text-align:left; margin-bottom:6px;">Bewertungen verwalten</h1>
+              <div style="color:#6d6257;">Hier kannst du Einträge prüfen, veröffentlichen, ablehnen oder endgültig löschen.</div>
+            </div>
+
+            <div class="actions">
+              <button id="refreshBtn" class="btn secondary" type="button">Neu laden</button>
+              <button id="logoutBtn" class="btn" type="button">Ausloggen</button>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="pendingTab" type="button">Offen</button>
+            <button class="tab-btn" data-tab="approvedTab" type="button">Freigegeben</button>
+            <button class="tab-btn" data-tab="rejectedTab" type="button">Abgelehnt</button>
+          </div>
+
+          <div id="panelStatus" class="status"></div>
+
+          <div id="pendingTab" class="tab-content active">
+            <div class="section-head">
+              <h2>Offene Bewertungen</h2>
+              <p>Neue Einträge mit Status <strong>pending</strong>.</p>
+            </div>
+            <div id="pendingList" class="list"></div>
+          </div>
+
+          <div id="approvedTab" class="tab-content">
+            <div class="section-head">
+              <h2>Freigegebene Bewertungen</h2>
+              <p>Bereits veröffentlichte Einträge mit Status <strong>approved</strong>.</p>
+            </div>
+            <div id="approvedList" class="list"></div>
+          </div>
+
+          <div id="rejectedTab" class="tab-content">
+            <div class="section-head">
+              <h2>Abgelehnte Bewertungen</h2>
+              <p>Nicht veröffentlichte Einträge mit Status <strong>rejected</strong>.</p>
+            </div>
+            <div id="rejectedList" class="list"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    const SUPABASE_URL = "https://toumkzdlnvipduoutwii.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_llXOp1CMCTLLGwUR25yC2g_j2qI2EwH";
+    const TOKEN_KEY = "efl_admin_access_token";
+
+    const loginBox = document.getElementById("loginBox");
+    const panelBox = document.getElementById("panelBox");
+    const loginStatus = document.getElementById("loginStatus");
+    const panelStatus = document.getElementById("panelStatus");
+    const pendingList = document.getElementById("pendingList");
+    const approvedList = document.getElementById("approvedList");
+    const rejectedList = document.getElementById("rejectedList");
+    const loginBtn = document.getElementById("loginBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    function setStatus(el, message, type) {
+      el.className = "status " + type;
+      el.textContent = message;
+    }
+
+    function clearStatus(el) {
+      el.className = "status";
+      el.textContent = "";
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function starString(count) {
+      const n = Number(count) || 0;
+      return "★".repeat(n) + "☆".repeat(Math.max(0, 5 - n));
+    }
+
+    function getToken() {
+      return sessionStorage.getItem(TOKEN_KEY) || "";
+    }
+
+    function setToken(token) {
+      sessionStorage.setItem(TOKEN_KEY, token);
+    }
+
+    function clearToken() {
+      sessionStorage.removeItem(TOKEN_KEY);
+    }
+
+    async function apiFetch(path, options = {}) {
+      const token = getToken();
+      const headers = {
+        apikey: SUPABASE_KEY,
+        ...(options.headers || {})
+      };
+
+      if (token) {
+        headers.Authorization = "Bearer " + token;
+      }
+
+      return fetch(SUPABASE_URL + path, {
+        ...options,
+        headers
+      });
+    }
+
+    function activateTab(tabId) {
+      tabButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === tabId);
+      });
+
+      tabContents.forEach((tab) => {
+        tab.classList.toggle("active", tab.id === tabId);
+      });
+    }
+
+    async function login() {
+      clearStatus(loginStatus);
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      if (!email || !password) {
+        setStatus(loginStatus, "Bitte E-Mail und Passwort eingeben.", "error");
+        return;
+      }
+
+      setStatus(loginStatus, "Login läuft ...", "success");
+
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/auth/v1/token?grant_type=password",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              apikey: SUPABASE_KEY
+            },
+            body: JSON.stringify({ email, password })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.access_token) {
+          setStatus(
+            loginStatus,
+            "Login fehlgeschlagen: " + (data.msg || data.error_description || data.error || "Unbekannter Fehler"),
+            "error"
+          );
+          return;
+        }
+
+        setToken(data.access_token);
+        setStatus(loginStatus, "Login erfolgreich.", "success");
+
+        loginBox.classList.add("hidden");
+        panelBox.classList.remove("hidden");
+        await loadAllReviews();
+      } catch (err) {
+        setStatus(loginStatus, "JS Fehler beim Login: " + err.message, "error");
+      }
+    }
+
+    async function logout() {
+      clearToken();
+      loginBox.classList.remove("hidden");
+      panelBox.classList.add("hidden");
+      pendingList.innerHTML = "";
+      approvedList.innerHTML = "";
+      rejectedList.innerHTML = "";
+      clearStatus(panelStatus);
+    }
+
+    async function getImageBlobUrl(path) {
+      if (!path) return null;
+
+      try {
+        const res = await apiFetch("/storage/v1/object/authenticated/reviews-images/" + path, {
+          method: "GET"
+        });
+
+        if (!res.ok) return null;
+
+        const blob = await res.blob();
+        return URL.createObjectURL(blob);
+      } catch {
+        return null;
+      }
+    }
+
+    function renderEmptyState(message) {
+      return '<div style="background:#fcfbf9; border:1px solid #e8ddd0; border-radius:18px; padding:22px; color:#6d6257;">' + escapeHtml(message) + '</div>';
+    }
+
+    async function renderReviewCards(items, targetList, mode) {
+      targetList.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        if (mode === "pending") {
+          targetList.innerHTML = renderEmptyState("Aktuell sind keine offenen Bewertungen vorhanden.");
+        } else if (mode === "approved") {
+          targetList.innerHTML = renderEmptyState("Aktuell sind keine freigegebenen Bewertungen vorhanden.");
+        } else {
+          targetList.innerHTML = renderEmptyState("Aktuell sind keine abgelehnten Bewertungen vorhanden.");
+        }
+        return;
+      }
+
+      for (const item of items) {
+        const imageBlobUrl = item.image_url ? await getImageBlobUrl(item.image_url) : null;
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        let buttonsHtml = "";
+
+        if (mode === "pending") {
+          buttonsHtml = `
+            <div class="actions">
+              <button class="btn approve-btn" data-id="${item.id}" type="button">Freigeben</button>
+              <button class="btn reject reject-btn" data-id="${item.id}" type="button">Ablehnen</button>
+              <button class="btn delete delete-btn" data-id="${item.id}" type="button">Endgültig löschen</button>
+            </div>
+          `;
+        }
+
+        if (mode === "approved") {
+          buttonsHtml = `
+            <div class="actions">
+              <button class="btn reject reject-btn" data-id="${item.id}" type="button">Auf abgelehnt setzen</button>
+              <button class="btn delete delete-btn" data-id="${item.id}" type="button">Endgültig löschen</button>
+            </div>
+          `;
+        }
+
+        if (mode === "rejected") {
+          buttonsHtml = `
+            <div class="actions">
+              <button class="btn approve-btn" data-id="${item.id}" type="button">Doch freigeben</button>
+              <button class="btn delete delete-btn" data-id="${item.id}" type="button">Endgültig löschen</button>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="card-image">
+            ${
+              imageBlobUrl
+                ? `<img src="${imageBlobUrl}" alt="Bewertungsbild">`
+                : `<div class="noimage">Kein Bild hochgeladen</div>`
+            }
+          </div>
+          <div>
+            <h3 class="card-title">${escapeHtml(item.title || "Ohne Titel")}</h3>
+            <div class="card-meta">
+              <strong>Name:</strong> ${escapeHtml(item.name || "-")}<br>
+              <strong>E-Mail:</strong> ${escapeHtml(item.email || "-")}<br>
+              <strong>Status:</strong> ${escapeHtml(item.status || "-")}<br>
+              <strong>Erstellt:</strong> ${item.created_at ? new Date(item.created_at).toLocaleString("de-AT") : "-"}
+            </div>
+            <div class="stars">${starString(item.stars)} (${item.stars || 0}/5)</div>
+            <div class="card-review">${escapeHtml(item.review_text || "")}</div>
+            ${buttonsHtml}
+          </div>
+        `;
+
+        targetList.appendChild(card);
+      }
+
+      targetList.querySelectorAll(".approve-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateReviewStatus(btn.dataset.id, "approved");
+        });
+      });
+
+      targetList.querySelectorAll(".reject-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await updateReviewStatus(btn.dataset.id, "rejected");
+        });
+      });
+
+      targetList.querySelectorAll(".delete-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          await deleteReview(btn.dataset.id);
+        });
+      });
+    }
+
+    async function loadReviewsByStatus(statusValue) {
+      const res = await apiFetch(
+        "/rest/v1/reviews?status=eq." + encodeURIComponent(statusValue) + "&select=id,name,email,title,review_text,stars,status,created_at,image_url&order=created_at.desc",
+        { method: "GET" }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || data.error || "Unbekannter Fehler");
+      }
+
+      return data;
+    }
+
+    async function loadAllReviews() {
+      clearStatus(panelStatus);
+      pendingList.innerHTML = renderEmptyState("Lade offene Bewertungen ...");
+      approvedList.innerHTML = renderEmptyState("Lade freigegebene Bewertungen ...");
+      rejectedList.innerHTML = renderEmptyState("Lade abgelehnte Bewertungen ...");
+
+      try {
+        const pending = await loadReviewsByStatus("pending");
+        const approved = await loadReviewsByStatus("approved");
+        const rejected = await loadReviewsByStatus("rejected");
+
+        await renderReviewCards(pending, pendingList, "pending");
+        await renderReviewCards(approved, approvedList, "approved");
+        await renderReviewCards(rejected, rejectedList, "rejected");
+      } catch (err) {
+        setStatus(panelStatus, "Bewertungen konnten nicht geladen werden: " + err.message, "error");
+      }
+    }
+
+    async function updateReviewStatus(id, status) {
+      clearStatus(panelStatus);
+
+      try {
+        const res = await apiFetch("/rest/v1/reviews?id=eq." + id, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+          },
+          body: JSON.stringify({ status })
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+          setStatus(panelStatus, "Status konnte nicht geändert werden: " + text, "error");
+          return;
+        }
+
+        if (status === "approved") {
+          setStatus(panelStatus, "Bewertung wurde freigegeben.", "success");
+        } else {
+          setStatus(panelStatus, "Bewertung wurde abgelehnt.", "success");
+        }
+
+        await loadAllReviews();
+      } catch (err) {
+        setStatus(panelStatus, "JS Fehler beim Aktualisieren: " + err.message, "error");
+      }
+    }
+
+    async function deleteReview(id) {
+      clearStatus(panelStatus);
+
+      const confirmed = confirm("Willst du diese Bewertung wirklich endgültig löschen?");
+      if (!confirmed) return;
+
+      try {
+        const res = await apiFetch("/rest/v1/reviews?id=eq." + id, {
+          method: "DELETE",
+          headers: {
+            "Prefer": "return=representation"
+          }
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+          setStatus(panelStatus, "Bewertung konnte nicht gelöscht werden: " + text, "error");
+          return;
+        }
+
+        setStatus(panelStatus, "Bewertung wurde endgültig gelöscht.", "success");
+        await loadAllReviews();
+      } catch (err) {
+        setStatus(panelStatus, "JS Fehler beim Löschen: " + err.message, "error");
+      }
+    }
+
+    loginBtn.addEventListener("click", login);
+    refreshBtn.addEventListener("click", loadAllReviews);
+    logoutBtn.addEventListener("click", logout);
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activateTab(btn.dataset.tab);
+      });
+    });
+
+    if (getToken()) {
+      loginBox.classList.add("hidden");
+      panelBox.classList.remove("hidden");
+      loadAllReviews();
+    }
+  </script>
+</body>
+</html>
