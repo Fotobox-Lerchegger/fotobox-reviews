@@ -10,24 +10,48 @@
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
       background: transparent;
+      color: #4a3b2c;
     }
 
     .wrapper {
       padding: 10px;
+      box-sizing: border-box;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .cards-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       gap: 26px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
 
     .card {
-      background: #fff;
+      width: 100%;
+      max-width: 360px;
+      background: #ffffff;
       border-radius: 20px;
       overflow: hidden;
       border: 1px solid #eee;
       box-shadow: 0 18px 40px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 28px 60px rgba(0,0,0,0.12);
+    }
+
+    .image {
+      background: #f5f5f5;
+      display: none;
+    }
+
+    .image.has-image {
+      display: block;
     }
 
     .image img {
@@ -42,12 +66,17 @@
 
     .stars {
       color: #c59d5f;
+      font-size: 15px;
       margin-bottom: 8px;
+      font-weight: 600;
     }
 
     .title {
+      font-size: 20px;
       font-weight: 700;
       margin-bottom: 6px;
+      color: #4a3b2c;
+      line-height: 1.3;
     }
 
     .name {
@@ -59,17 +88,33 @@
     .text {
       font-size: 14px;
       line-height: 1.6;
+      color: #5b4f42;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
+    .state {
+      text-align: center;
+      color: #6d6257;
+      font-size: 16px;
+      padding: 30px 10px;
+    }
+
+    .state.error {
+      color: #8a2f2f;
+    }
+
+    @media (max-width: 600px) {
+      .card {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="wrapper">
-    <div id="output">Lade Bewertungen...</div>
+    <div id="output" class="state">Lade Bewertungen...</div>
   </div>
 
   <script>
@@ -78,7 +123,17 @@
     const BUCKET = "reviews-images";
 
     function stars(n) {
-      return "★".repeat(n || 0) + "☆".repeat(5 - (n || 0));
+      n = Number(n) || 0;
+      return "★".repeat(n) + "☆".repeat(Math.max(0, 5 - n));
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function resize() {
@@ -86,52 +141,88 @@
       parent.postMessage({ type: "resize", height: height }, "*");
     }
 
-    fetch(
-      SUPABASE_URL + "/rest/v1/reviews?status=eq.approved&select=*&order=created_at.desc&limit=3",
-      {
-        headers: { apikey: SUPABASE_KEY }
-      }
-    )
-    .then(r => r.json())
-    .then(data => {
-
-      if (!data.length) {
-        document.getElementById("output").innerHTML = "Keine Bewertungen vorhanden";
-        resize();
-        return;
-      }
-
-      let html = '<div class="grid">';
-
-      data.forEach(item => {
-        let img = item.image_url
-          ? SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/" + item.image_url
-          : "";
-
-        html += `
-          <div class="card">
-            ${img ? `<div class="image"><img src="${img}" onload="resize()"></div>` : ""}
-            <div class="content">
-              <div class="stars">${stars(item.stars)}</div>
-              <div class="title">${item.title || ""}</div>
-              <div class="name">${item.name || ""}</div>
-              <div class="text">${item.review_text || ""}</div>
-            </div>
-          </div>
-        `;
-      });
-
-      html += "</div>";
-
-      document.getElementById("output").innerHTML = html;
-
-      // NUR EINMAL + leicht verzögert
+    function resizeSeveralTimes() {
+      resize();
       setTimeout(resize, 200);
-      setTimeout(resize, 800);
+      setTimeout(resize, 600);
+      setTimeout(resize, 1200);
+    }
 
-    })
-    .catch(() => {
-      document.getElementById("output").innerHTML = "Fehler beim Laden";
+    async function loadPreviewReviews() {
+      const output = document.getElementById("output");
+
+      try {
+        const response = await fetch(
+          SUPABASE_URL + "/rest/v1/reviews?status=eq.approved&select=id,name,title,review_text,stars,image_url,created_at&order=created_at.desc&limit=3",
+          {
+            headers: {
+              apikey: SUPABASE_KEY
+            }
+          }
+        );
+
+        const text = await response.text();
+
+        if (!response.ok) {
+          throw new Error("HTTP " + response.status + " | " + text);
+        }
+
+        let data = [];
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error("JSON Fehler | " + text);
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          output.className = "state";
+          output.innerHTML = "Keine Bewertungen vorhanden";
+          resizeSeveralTimes();
+          return;
+        }
+
+        let html = '<div class="cards-wrap">';
+
+        data.forEach((item, i) => {
+          const img = item.image_url
+            ? SUPABASE_URL + "/storage/v1/object/public/" + BUCKET + "/" + item.image_url
+            : "";
+
+          html += `
+            <div class="card">
+              <div class="image ${img ? 'has-image' : ''}" id="img-${i}">
+                ${img ? `<img src="${img}" alt="" loading="lazy" onload="resize()" onerror="document.getElementById('img-${i}').style.display='none'; resize();">` : ""}
+              </div>
+
+              <div class="content">
+                <div class="stars">${stars(item.stars)} (${item.stars || 0}/5)</div>
+                <div class="title">${escapeHtml(item.title || "")}</div>
+                <div class="name">${escapeHtml(item.name || "")}</div>
+                <div class="text">${escapeHtml(item.review_text || "")}</div>
+              </div>
+            </div>
+          `;
+        });
+
+        html += "</div>";
+
+        output.className = "";
+        output.innerHTML = html;
+        resizeSeveralTimes();
+
+      } catch (error) {
+        output.className = "state error";
+        output.innerHTML = "Fehler beim Laden der Bewertungen";
+        resizeSeveralTimes();
+      }
+    }
+
+    window.addEventListener("load", function () {
+      loadPreviewReviews();
+      resizeSeveralTimes();
+    });
+
+    window.addEventListener("resize", function () {
       resize();
     });
   </script>
