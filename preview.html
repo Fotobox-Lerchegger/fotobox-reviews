@@ -143,13 +143,14 @@
         document.body.scrollHeight,
         document.documentElement.scrollHeight
       );
-
       parent.postMessage({ type: "resize", height: height }, "*");
-      parent.postMessage({ type: "resize", height: height + 100 }, "*");
+    }
 
-      setTimeout(() => {
-        parent.postMessage({ type: "resize", height: height + 200 }, "*");
-      }, 300);
+    function resizeSeveralTimes() {
+      resize();
+      setTimeout(resize, 200);
+      setTimeout(resize, 600);
+      setTimeout(resize, 1200);
     }
 
     async function loadPreviewReviews() {
@@ -181,7 +182,7 @@
         if (!Array.isArray(data) || data.length === 0) {
           output.className = "state";
           output.innerHTML = "Keine Bewertungen vorhanden";
-          resize();
+          resizeSeveralTimes();
           return;
         }
 
@@ -212,26 +213,23 @@
 
         output.className = "";
         output.innerHTML = html;
-
-        resize();
-        setTimeout(resize, 200);
-        setTimeout(resize, 800);
-        setTimeout(resize, 1500);
+        resizeSeveralTimes();
 
       } catch (error) {
         output.className = "state error";
         output.innerHTML = "Fehler beim Laden der Bewertungen";
-        resize();
+        resizeSeveralTimes();
       }
     }
 
-    window.addEventListener("load", () => {
+    window.addEventListener("load", function () {
       loadPreviewReviews();
-      resize();
+      resizeSeveralTimes();
     });
 
-    window.addEventListener("resize", resize);
-    setInterval(resize, 1000);
+    window.addEventListener("resize", function () {
+      resize();
+    });
   </script>
 </body>
 </html>
