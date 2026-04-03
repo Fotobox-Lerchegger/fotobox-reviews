@@ -42,8 +42,6 @@
     }
 
     .image {
-      height: 220px;
-      overflow: hidden;
       background: #f5f5f5;
       display: none;
     }
@@ -54,14 +52,8 @@
 
     .image img {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
+      height: auto;
       display: block;
-    }
-
-    .card:hover img {
-      transform: scale(1.05);
     }
 
     .content {
@@ -147,8 +139,17 @@
     }
 
     function resize() {
-      const h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
-      parent.postMessage({ type: "resize", height: h }, "*");
+      const height = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      );
+
+      parent.postMessage({ type: "resize", height: height }, "*");
+      parent.postMessage({ type: "resize", height: height + 100 }, "*");
+
+      setTimeout(() => {
+        parent.postMessage({ type: "resize", height: height + 200 }, "*");
+      }, 300);
     }
 
     async function loadPreviewReviews() {
@@ -194,7 +195,7 @@
           html += `
             <div class="card">
               <div class="image ${img ? 'has-image' : ''}" id="img-${i}">
-                ${img ? `<img src="${img}" alt="" loading="lazy" onerror="document.getElementById('img-${i}').style.display='none'; resize();">` : ""}
+                ${img ? `<img src="${img}" alt="" loading="lazy" onload="resize()" onerror="document.getElementById('img-${i}').style.display='none'; resize();">` : ""}
               </div>
 
               <div class="content">
@@ -212,8 +213,10 @@
         output.className = "";
         output.innerHTML = html;
 
+        resize();
         setTimeout(resize, 200);
         setTimeout(resize, 800);
+        setTimeout(resize, 1500);
 
       } catch (error) {
         output.className = "state error";
@@ -222,7 +225,13 @@
       }
     }
 
-    window.addEventListener("load", loadPreviewReviews);
+    window.addEventListener("load", () => {
+      loadPreviewReviews();
+      resize();
+    });
+
+    window.addEventListener("resize", resize);
+    setInterval(resize, 1000);
   </script>
 </body>
 </html>
